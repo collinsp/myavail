@@ -1,7 +1,4 @@
 
-# specify users here
-my $SERVER = 'https://exchange.foo.edu/ews/exchange.asmx';
-
 %MYAVAIL::USERS = (
 
   # user param
@@ -9,7 +6,7 @@ my $SERVER = 'https://exchange.foo.edu/ews/exchange.asmx';
     name => "Philip Collins", # defaults to user param
 
     # user => 'foo', # defaults to user param
-    pass => "ABC123",
+    pass => "KJEDIJEIFJoidjfodjfjdkfjdkjdfkjdkfjd=",
 
     title => "My Availability",
 

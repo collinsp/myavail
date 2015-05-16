@@ -9,11 +9,7 @@ Installation Instructions
   sudo yum install curl perl-CGI perl-URI perl-IPC-System-Simple perl-Time-Piece perl-XML-Simple
 
 2) Copy myavail directory into your htdocs folder
-  sudo su
-  cp -r myavail /var/www/html
-  cd /var/www/html
-  cp config.pl.sample config.pl
-
+  sudo cp -r myavail /var/www/html
 
 3) Add the following Apache config to a virtualhost 
 
@@ -26,9 +22,8 @@ Installation Instructions
     AddHandler cgi-script pl
     DirectoryIndex index.pl
 
-    # Note: make sure file containing the vault password is only readable by root
     # Make sure you change the vault password!
-    SetEnv MYAVAIL_VAULT_PASS "sdfew89u34jhiUFeiouoer0jklfkj30111"
+    SetEnv MYAVAIL_VAULT_PASS "change this to something random"
   </Directory>
 
   # the vault password should not be readable by one other than root
