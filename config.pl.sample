@@ -1,0 +1,25 @@
+
+# specify users here
+my $SERVER = 'https://exchange.foo.edu/ews/exchange.asmx';
+
+%MYAVAIL::USERS = (
+
+  # user param
+  'foo' => {
+    name => "Philip Collins", # defaults to user param
+
+    # user => 'foo', # defaults to user param
+    pass => "ABC123",
+
+    title => "My Availability",
+
+    message => 'Email <a href=mailto:a@b.com>a@b.com</a> to suggest a time to meet.",
+    dayStart => '07:00',
+    dayEnd => '17:00',
+
+    server => $SERVER,
+    weeks => 24
+  },
+
+
+);
