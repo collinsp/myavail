@@ -26,7 +26,7 @@ Installation Instructions
     SetEnv MYAVAIL_VAULT_PASS "change this to something random"
   </Directory>
 
-  # the vault password should not be readable by one other than root
+  # the vault password should not be readable by anyone other than root
   chmod 600 /your/virtualhost/file.conf
 
 4) Add an account

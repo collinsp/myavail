@@ -297,20 +297,59 @@ sub error_vault {
 }
 
 sub act_add {
-  my $buf = '
-<form>
-<p><label>page title<br><input type=text name=title value="Frank\'s Availability"></label>
+  my $buf = 
+'<html>
+<head>
+<style>
+body {
+  font-family: sans-serif;
+}
+input,textarea {
+  width: 30em;
+  padding: 6px;
+  color: blue;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+textarea {
+  height: 6em;
+}
+label {
+  font-weight: bold;
+  color: #444;
+}
+fieldset {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+legend {
+  color: #666;
+}
+
+</style>
+</head>
+<body>
+<h1>Add User</h1>
+<form method=post>
+
+<p><label>page title<br><input type=text name=title value="My Availability"></label>
 <p><label>name<br><input type=text name=name></label>
-<p><label>username<br><input type=text name=user required></label>
-<p><label>password<br><input type=password name=pass required></label>
 <p><label>HTML message<br><textarea name=message>Email <a href=mailto:a@b.com>a@b.com</a> to suggest a time to meet.</textarea></label>
-<p><label>Start of Day<br><input type=text name=dayStart required placeholder="08:00" value="08:00"></label>
-<p><label>End of Day<br><input type=text name=dayEnd required placeholder="17:00" value="17:00"></label>
-<p><label>Exchange Server<br><input type=text name=server required value="https://exchange.FOO.edu/ews/exchange.asmx">
-</label>
-<p><label>Show Weeks<br><input type=text name=weeks value=24 required placeholder=24></label>
-<p><button type=submit name=act value=showaddconfig>show config</button>
-</form>';
+<p><label>day start<br><input type=text name=dayStart required placeholder="08:00" value="08:00"></label>
+<p><label>day end<br><input type=text name=dayEnd required placeholder="17:00" value="17:00"></label>
+<p><label>show weeks<br><input type=text name=weeks value=24 required placeholder=24></label>
+
+<fieldset>
+  <legend>exchange server</legend>
+  <p><label>url<br><input type=text name=server required value="https://exchange.FOO.edu/ews/exchange.asmx">
+  <p><label>username<br><input type=text name=user required></label>
+  <p><label>password<br><input type=password name=pass required></label>
+</fieldset>
+
+<p><button type=submit name=act value=showaddconfig>submit</button>
+</form>
+</body>
+</html>';
     print http_header(), $buf;
 }
 
@@ -320,10 +359,14 @@ sub act_showaddconfig {
   $c{pass} = encrypt(param('pass'));
   my $buf = '
 <pre>
-Add the followind config to myavail/config.pl
+Add the following config to myavail/config.pl
 
 $MYAVAIL::USERS{\''.$c{user}.'\'} = '.dumpit(\%c).'
-</pre>';
+</pre>
+
+<p>
+<a href="?">back</a>
+';
   print http_header(), $buf;
 }
 
@@ -337,7 +380,7 @@ sub act_showavail {
       my $name = $USERS{$u}{name} || $USERS{$u}{user} || $u;
       $buf .= "<li><a href='?user=".escape_uri($u)."'>".escape_html($name)."</a>\n";
     }
-    $buf .= "</ul></body></html>";
+    $buf .= "</ul><a href='?act=add'>add user</a></body></html>";
     print http_header(), $buf;
   }
 
