@@ -170,8 +170,8 @@ sub get_freetime {
 
         foreach my $e (@$events) {
           # if slice is before event or after event, slice is free
-          if (($timeSliceMin + 15) <= $$e[0] || ($timeSliceMin > $$e[1])) {
-            # time splice is not in conflict
+          if (($timeSliceMin + 15) <= $$e[0] || ($timeSliceMin >= $$e[1])) {
+            # time slice is not in conflict
           } else {
             $is_avail = 0;  
             last;
