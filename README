@@ -6,7 +6,7 @@ Installation Instructions
 1) Install dependancies:
 
   # install from OS packages or use CPAN
-  sudo yum install curl perl-CGI perl-URI perl-IPC-System-Simple perl-Time-Piece perl-XML-Simple
+  sudo yum install curl perl-CGI perl-URI perl-IPC-System-Simple perl-Time-Piece perl-Time-Local perl-XML-Simple
 
 2) Copy myavail directory into your htdocs folder
   sudo cp -r myavail /var/www/html
