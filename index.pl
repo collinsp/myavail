@@ -10,8 +10,9 @@ use IPC::System::Simple qw( capturex );
 use Data::Dumper;
 use Time::Piece();
 use Time::Seconds;
+use Time::Local();
 use CGI();
-use Carp::Always();
+use POSIX();
 
 # load runtime config
 use FindBin qw($Bin);
@@ -118,8 +119,8 @@ sub get_calendar {
   foreach my $rec (@$recs) {
     next unless $$rec{'t:LegacyFreeBusyStatus'} eq 'Busy';
 
-    my $start = Time::Piece->strptime($$rec{'t:Start'}, '%Y-%m-%dT%H:%M:%SZ');
-    my $end =   Time::Piece->strptime($$rec{'t:End'},   '%Y-%m-%dT%H:%M:%SZ');
+    my $start = gmtime2localtime(Time::Piece->strptime($$rec{'t:Start'}, '%Y-%m-%dT%H:%M:%SZ'));
+    my $end =   gmtime2localtime(Time::Piece->strptime($$rec{'t:End'},   '%Y-%m-%dT%H:%M:%SZ'));
 
     my $startMin = ($start->hour * 60) + $start->min;
     my $endMin = ($end->hour * 60) + $end->min;
@@ -138,6 +139,11 @@ sub get_calendar {
   return \%calendar;
 }
 
+sub gmtime2localtime {
+  my ($t) = @_;
+  my $epoch = Time::Local::timegm($t->sec, $t->min, $t->hour, $t->mday, $t->_mon, $t->year);
+  return Time::Piece->new($epoch);
+}
 
 sub get_freetime {
   my %opts = @_;
@@ -156,8 +162,8 @@ sub get_freetime {
   my $now = Time::Piece->new();
 
   while ($currentDay < $endDate) {
-    my $timeSlice = Time::Piece->strptime($currentDay->ymd.'T'.$dayStart,'%Y-%m-%dT%H:%M') - $opts{tzoffset};
-    my $endOfDay  = Time::Piece->strptime($currentDay->ymd.'T'.$dayEnd,  '%Y-%m-%dT%H:%M') - $opts{tzoffset};
+    my $timeSlice = Time::Piece->strptime($currentDay->ymd.'T'.$dayStart,'%Y-%m-%dT%H:%M');
+    my $endOfDay  = Time::Piece->strptime($currentDay->ymd.'T'.$dayEnd,  '%Y-%m-%dT%H:%M');
 
     my $freeStart;
     while ($timeSlice < $endOfDay) {
@@ -213,6 +219,8 @@ sub get_html_list {
   my %opts = @_;
   my $free_blocks = get_freetime(%opts);
 
+  my $timezone = POSIX::strftime("%Z", localtime());
+
   my $buf = '
 <html>
 <head>
@@ -240,11 +248,18 @@ h3 {
 .times {
   color: #444;
 }
+#top {
+  margin-left: 10px;
+}
 </style>
 </head>
 <body>
+<div id=top>
 <h1>'.escape_html($opts{title}).'</h1>
-'.$opts{message};
+<strong>All times in '.escape_html($timezone).' timezone.</strong>
+<p>
+'.$opts{message}.'
+</div>';
   my $lastmonth;
   
   foreach my $day (sort keys (%$free_blocks)) {
@@ -259,11 +274,11 @@ h3 {
 
     my @times;
     foreach my $availblock (@{ $$free_blocks{$day} }) {
-      my $t0 = $$availblock[0] + $opts{tzoffset};
+      my $t0 = $$availblock[0];
       $t0 = $t0->strftime("%I:%M%P");
       $t0 =~ s/^0//;
 
-      my $t1 = $$availblock[1] + $opts{tzoffset};
+      my $t1 = $$availblock[1];
       $t1 = $t1->strftime("%I:%M%P");
       $t1 =~ s/^0//;
 
@@ -341,7 +356,7 @@ legend {
 
 <fieldset>
   <legend>exchange server</legend>
-  <p><label>url<br><input type=text name=server required value="https://exchange.FOO.edu/ews/exchange.asmx">
+  <p><label>url<br><input type=text name=server required value="https://exchange.unh.edu/ews/exchange.asmx">
   <p><label>username<br><input type=text name=user required></label>
   <p><label>password<br><input type=password name=pass required></label>
 </fieldset>
@@ -388,7 +403,8 @@ sub act_showavail {
     my %opts = %{ $USERS{$user} };
     $opts{user} ||= $user;
     $opts{name} ||= $user;
-    $opts{title} ||= "$user Availability (EDT)";
+    my $timezone = POSIX::strftime("%Z", localtime());
+    $opts{title} ||= "$user Availability ($timezone)";
     $opts{message} ||= 'Send me an email to suggest a time to meet.';
     $opts{dayStart} ||= '08:00';
     $opts{dayEnd} ||= '17:00';
@@ -397,7 +413,6 @@ sub act_showavail {
     $opts{maxEntries} ||= 5000;
     $opts{server} ||= 'https://exchange.unh.edu/ews/exchange.asmx';
     $opts{weeks} ||= 12;
-    $opts{tzoffset} ||= Time::Piece::localtime->tzoffset;
     $opts{showdays} ||= '23456'; # (Sun=1, Sat=7)
     print http_header(), get_html_list(%opts);
   }
