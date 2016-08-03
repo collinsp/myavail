@@ -122,16 +122,28 @@ sub get_calendar {
     my $start = gmtime2localtime(Time::Piece->strptime($$rec{'t:Start'}, '%Y-%m-%dT%H:%M:%SZ'));
     my $end =   gmtime2localtime(Time::Piece->strptime($$rec{'t:End'},   '%Y-%m-%dT%H:%M:%SZ'));
 
-    my $startMin = ($start->hour * 60) + $start->min;
-    my $endMin = ($end->hour * 60) + $end->min;
-
-    my @event = ($startMin, $endMin);
-
     # add event to each date from start to end
     my $d = $start;
     while ($d <= $end) {
+      my $startMin;
+
+      # if day is start date use start min, otherwise 0
+      if ($d->ymd eq $start->ymd) {
+        $startMin = ($start->hour * 60) + $start->min;
+      } else {
+        $startMin = 0;
+      }
+
+      # if day is end date use end min, otherwise 24 hours * 60 min in hour
+      my $endMin;
+      if ($d->ymd eq $end->ymd) {
+        $endMin = ($end->hour * 60) + $end->min;
+      } else {
+        $endMin = 24 * 60;
+      }
+ 
       my $events = $calendar{$d->ymd} ||= [];
-      push @$events, \@event;
+      push @$events, [$startMin, $endMin];
       $d += ONE_DAY;
     }
   }
