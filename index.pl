@@ -117,7 +117,7 @@ sub get_calendar {
   my %calendar; # (localdate_yyyy-mm-dd => [[starttime-hhmi,endtime-hhmi], ..], ..)
 
   foreach my $rec (@$recs) {
-    next unless $$rec{'t:LegacyFreeBusyStatus'} eq 'Busy';
+    next if $$rec{'t:LegacyFreeBusyStatus'} eq 'Free';
 
     my $start = gmtime2localtime(Time::Piece->strptime($$rec{'t:Start'}, '%Y-%m-%dT%H:%M:%SZ'));
     my $end =   gmtime2localtime(Time::Piece->strptime($$rec{'t:End'},   '%Y-%m-%dT%H:%M:%SZ'));
