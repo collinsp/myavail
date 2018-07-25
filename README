@@ -3,13 +3,24 @@ myavail - CGI script showing dates/times users are available based on their Micr
 Installation Instructions
 -------------------------
 
-1) Install dependancies:
+1) Install dependencies:
 
   # install from OS packages or use CPAN
   sudo yum install curl perl-CGI perl-URI perl-IPC-System-Simple perl-Time-Piece perl-Time-Local perl-XML-Simple
 
-2) Copy myavail directory into your htdocs folder
-  sudo cp -r myavail /var/www/html
+2) Install myavail
+
+  sudo su
+  cd /var/www/html
+  git clone git@github.com:collinsp/myavail.git
+  cd myavail
+  cd config.pl.sample config.pl
+  export DEPLOY_USER=root
+  export DEPLOY_GROUP=apache
+  chown -R $DEPLOY_USER.root .
+  chgrp $DEPLOY_GROUP config.pl index.pl .
+  chmod -R u=rwX,g=,o= .
+  chmod u=rwx,g=rx,o= index.pl config.pl .
 
 3) Add the following Apache config to a virtualhost 
 
